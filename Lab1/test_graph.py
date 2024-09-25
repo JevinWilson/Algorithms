@@ -29,8 +29,7 @@ class TestGraph(unittest.TestCase):
         self.assertEqual(adj_matrix, graph.adj_matrix)
         
         # Test the size
-        self.assertEqual(graph.order * (graph.order - 1) / 2, graph.size)
-         
+        self.assertEqual(graph.order * (graph.order - 1) / 2, graph.size)         
 
 if __name__ == '__main__':
     unittest.main()
