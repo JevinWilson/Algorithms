@@ -4,19 +4,19 @@ import numpy as np
 class Graph:
     def __init__(self, graph_representation):
         if isinstance(graph_representation, list):
-            # Assuming input is an adjacency list
+            # input is an adjacency list
             self.adj_list = graph_representation
             self.order = len(graph_representation)
             self.size = sum(len(adj_list) for adj_list in graph_representation)
             self.adj_matrix = self._convert_to_adjacency_matrix(graph_representation)
         elif isinstance(graph_representation, (tuple, list)):
-            # Assuming input is an adjacency matrix
+            # input is an adjacency matrix
             self.adj_matrix = graph_representation
             self.order = len(graph_representation)
             self.size = sum(1 for row in graph_representation for val in row if val != 0)
             self.adj_list = self._convert_to_adjacency_list(graph_representation)
         else:
-            raise ValueError("Invalid input format. Please provide either an adjacency list or an adjacency matrix.")
+            raise ValueError("Invalid input.")
             
 
         self.vertex_weights = [None] * self.order
@@ -44,7 +44,8 @@ class Graph:
         edge_weights = [[None] * self.order for _ in range(self.order)]
         for i in range(self.order):
             for neighbor in self.adj_list[i]:
-                edge_weights[i][neighbor] = None  # Initialize edge weights to None
+                # Initialize edge weights to None
+                edge_weights[i][neighbor] = None  
         return edge_weights
 
     def get_vertex_weight(self, vertex):
@@ -242,7 +243,7 @@ class Graph:
     def to_numpy_array(self):
         return np.array(self.adj_matrix)
     
-# Creating a graph using an adjacency list
+"""# Creating a graph using an adjacency list
 adj_list_representation = [
     [1, 2],     # Node 0 is connected to nodes 1 and 2
     [0, 2],     # Node 1 is connected to nodes 0 and 2
@@ -361,6 +362,6 @@ graph_from_adj_list = Graph(adj_list_representation)
 numpy_array = graph_from_adj_list.to_numpy_array()
 print("Adjacency Matrix as a NumPy array:")
 print(numpy_array)
-
+"""
 
     
