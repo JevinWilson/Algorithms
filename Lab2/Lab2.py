@@ -1,9 +1,5 @@
-import sys
-import os
-sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
-
-from Lab1.graph_JW import Graph
 import heapq
+import numpy as np
 
 romania_graph = {
     'Oradea': [('Zerind', 71), ('Sibiu', 151)],
@@ -94,6 +90,33 @@ heuristic = {
     'Eforie': 268           # <= 269
 }
 
+"""
+# from worksheet
+heuristic = {
+    'Arad': 366,
+    'Bucharest': 0,
+    'Craiova': 160,
+    'Drobeta': 242,
+    'Eforie': 161,
+    'Fagaras': 176,
+    'Giurgiu': 77,
+    'Hirsova': 151,
+    'Iasi': 226,
+    'Lugoj': 244,
+    'Mehadia': 241,
+    'Neamt': 234,
+    'Oradea': 380,
+    'Pitesti': 100,
+    'Rimnicu Vilcea': 193,
+    'Sibiu': 253,
+    'Timisoara': 329,
+    'Urziceni': 80,
+    'Vaslui': 199,
+    'Zerind': 374
+}
+
+"""
+
 def a_star(graph, start, goal, heuristic):
     # Initialize distances and priority queue
     distances = {node: float('inf') for node in graph}
@@ -103,7 +126,7 @@ def a_star(graph, start, goal, heuristic):
     previous_nodes = {node: None for node in graph}
     
     while priority_queue:
-        current_node = heapq.heappop(priority_queue)
+        current_f, current_node = heapq.heappop(priority_queue)
         
         # reach destination stop
         if current_node == goal:
@@ -116,7 +139,7 @@ def a_star(graph, start, goal, heuristic):
             # f(n) = g(n) + h(n)
             f = g + heuristic[neighbor]  
 
-            # Update if a shorter path is found
+            # update if a shorter path is found
             if g < distances[neighbor]:  
                 distances[neighbor] = g
                 previous_nodes[neighbor] = current_node
@@ -130,6 +153,31 @@ def a_star(graph, start, goal, heuristic):
         current = previous_nodes[current]
     
     return distances[goal], path
+
+def floyd_warshall(graph):
+    # extract nodes and create mapping
+    nodes = list(graph.keys())
+    n = len(nodes)
+    node_index = {}
+    for i, node in enumerate(nodes):
+        node_index[node] = i
+    
+    # initialize distance matrix
+    dist = np.full((n, n), float('inf'))
+    np.fill_diagonal(dist, 0)  # Distance to self is 0
+    
+    # populate initial distances based on the graph
+    for node, neighbors in graph.items():
+        for neighbor, weight in neighbors:
+            dist[node_index[node], node_index[neighbor]] = weight
+    
+    # floyd warshall algorithm
+    for k in range(n):
+        for i in range(n):
+            for j in range(n):
+                dist[i, j] = min(dist[i, j], dist[i, k] + dist[k, j])
+    
+    return dist, nodes
 
 
 if __name__ == "__main__":
@@ -147,8 +195,45 @@ if __name__ == "__main__":
     #### Task 3 ####
     shortest_distance_a_star, shortest_path_a_star = a_star(romania_graph, start, destination, heuristic)
     
+    #### Task 4 ####
     print("\nUsing A* Search:")
     print(f"Shortest distance from {start} to {destination}: {shortest_distance_a_star}")
 
-    ### Task 4 ####
+    #### Task 5 ####
     print(f"Path: {' -> '.join(shortest_path_a_star)}")
+
+    #### Task 6 ####
+    dist_matrix, nodes = floyd_warshall(romania_graph)
+    
+    #### Task 7 ####
+    print("\nFloyd-Warshall Distance Matrix:")
+    print("   " + "   ".join(nodes))
+    for i, row in enumerate(dist_matrix):
+        row_values = []
+        for cell in row:
+            if cell < float('inf'):
+                # format finite distances
+                row_values.append(f"{int(cell):>3}")  
+            else:
+                # format infinite distances
+                row_values.append("inf")  
+        # combine values into a single string
+        row_string = " ".join(row_values)  
+        # print the node and the row values
+        print(f"{nodes[i]:>9} {row_string}")  
+
+#### Task 9 ####
+"""
+Of the three algorithms, I believe that the floyd warshall is the most appropriate for solving this type
+of problem. Even though it is not the most efficient it makes up for it with the extra information that it
+generates compared to the other two. In terms of solving distance to and from a destination I assume
+that seeing all the possible distances in one place is very helpful to analysts. The other two algorithms are 
+faster but in the context of this type of problem I don't think efficiency at the computer level is valued
+because the time saved in human time is probably negligible. I am aware that with extremely large cases
+the efficiency will become noticeable in human time but I can't think of a scenario where a data set 
+solving for distances between locations would be large enough to warrant the use of a more efficient 
+algorithm, I could be wrong though. In the context of this problem I think you can ignore efficiency because
+I view efficiency as a quality of life feature that in large programs is important for users in a consumer
+setting. In this case the user is the analyst and the program is the tool and as long as they get the 
+correct data before their deadline, how fast they obtain it is not important.
+"""
